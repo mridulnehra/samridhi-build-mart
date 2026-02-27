@@ -14,9 +14,13 @@ function formatCurrency(amount: number): string {
 
 const handleDownloadPDF = async (invoice: Invoice) => {
     const { generateInvoicePDF } = await import('@/utils/invoicePdf');
-    // Fetch factory info from settings for the PDF header
-    const factoryInfo = await dataService.getSetting('factory_info');
-    generateInvoicePDF(invoice, factoryInfo as { name: string; phone: string; address: string; gst: string } | undefined);
+    // Fetch factory info from settings — gracefully handle if not found
+    let factoryInfo: { name: string; phone: string; address: string; gst: string } | undefined;
+    try {
+        const setting = await dataService.getSetting('factory_info');
+        if (setting) factoryInfo = setting as { name: string; phone: string; address: string; gst: string };
+    } catch { /* ignore — PDF will use defaults */ }
+    generateInvoicePDF(invoice, factoryInfo);
 };
 
 export default function SalesPage() {
