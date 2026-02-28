@@ -25,5 +25,9 @@
     "typescript": "^5.6.2",
     "vite": "^6.0.0",
     "vite-plugin-pwa": "^0.21.1"
+  },
+  "overrides": {
+    "sourcemap-codec": "npm:@jridgewell/sourcemap-codec@latest",
+    "glob": "^11.0.1"
   }
 }
