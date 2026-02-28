@@ -1,7 +1,7 @@
-'use client';
+
 
 import { AppLayout } from '@/components/layout';
-import Link from 'next/link';
+import { Link } from 'react-router-dom';
 import {
     Receipt,
     Factory,
@@ -77,7 +77,7 @@ export default function QuickAddPage() {
                 {quickActions.map((action) => {
                     const Icon = action.icon;
                     return (
-                        <Link key={action.href} href={action.href} style={{ textDecoration: 'none' }}>
+                        <Link key={action.href} to={action.href} style={{ textDecoration: 'none' }}>
                             <div
                                 className="card card-hover"
                                 style={{

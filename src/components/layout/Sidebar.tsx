@@ -1,7 +1,4 @@
-'use client';
-
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { Link, useLocation } from 'react-router-dom';
 import {
     LayoutDashboard,
     Package,
@@ -38,21 +35,22 @@ const menuItems = [
 ];
 
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {
-    const pathname = usePathname();
+    const location = useLocation();
+    const pathname = location.pathname;
 
     return (
         <>
             {/* Mobile overlay */}
             {isOpen && (
                 <div
-                    className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+                    className="sidebar-overlay"
                     onClick={onClose}
                 />
             )}
 
             <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
                 <div className="sidebar-header">
-                    <div className="flex items-center justify-between">
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                         <div>
                             <h1 style={{ fontSize: '18px', fontWeight: '700', color: 'var(--color-primary)' }}>
                                 Smridhi BuildMart
@@ -63,7 +61,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                         </div>
                         <button
                             onClick={onClose}
-                            className="lg:hidden p-2 hover:bg-gray-100 rounded-lg"
+                            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '8px' }}
                         >
                             <X size={20} />
                         </button>
@@ -79,7 +77,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                         return (
                             <Link
                                 key={item.href}
-                                href={item.href}
+                                to={item.href}
                                 className={`sidebar-item ${isActive ? 'active' : ''}`}
                                 onClick={onClose}
                             >

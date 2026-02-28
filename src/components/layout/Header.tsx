@@ -1,5 +1,3 @@
-'use client';
-
 import { Menu, Bell } from 'lucide-react';
 
 interface HeaderProps {
@@ -29,7 +27,6 @@ export default function Header({ title, onMenuClick }: HeaderProps) {
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                 <button
                     onClick={onMenuClick}
-                    className="lg:hidden"
                     style={{
                         background: 'none',
                         border: 'none',

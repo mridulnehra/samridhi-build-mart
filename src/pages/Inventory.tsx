@@ -1,14 +1,14 @@
-'use client';
+
 
 import { AppLayout } from '@/components/layout';
-import Link from 'next/link';
+import { Link } from 'react-router-dom';
 import { Package, Boxes, ArrowRight } from 'lucide-react';
 
 export default function InventoryPage() {
     return (
         <AppLayout title="Inventory">
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                <Link href="/inventory/materials" style={{ textDecoration: 'none' }}>
+                <Link to="/inventory/materials" style={{ textDecoration: 'none' }}>
                     <div className="card card-hover">
                         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                             <div
@@ -37,7 +37,7 @@ export default function InventoryPage() {
                     </div>
                 </Link>
 
-                <Link href="/inventory/blocks" style={{ textDecoration: 'none' }}>
+                <Link to="/inventory/blocks" style={{ textDecoration: 'none' }}>
                     <div className="card card-hover">
                         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                             <div

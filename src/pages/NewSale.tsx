@@ -1,4 +1,4 @@
-'use client';
+
 
 import { useState, useEffect } from 'react';
 import { AppLayout } from '@/components/layout';
@@ -6,7 +6,7 @@ import { useToast } from '@/components/ui';
 import { Plus, Trash2, ArrowLeft } from 'lucide-react';
 import { Block, Customer } from '@/types';
 import { dataService } from '@/services/dataService';
-import { useRouter } from 'next/navigation';
+import { useNavigate } from 'react-router-dom';
 
 function formatCurrency(amount: number): string {
     return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0 }).format(amount);
@@ -22,7 +22,7 @@ interface SaleItem {
 
 export default function NewSalePage() {
     const { showToast } = useToast();
-    const router = useRouter();
+    const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
     const [saving, setSaving] = useState(false);
@@ -184,7 +184,7 @@ export default function NewSalePage() {
                 }
 
                 showToast(`Invoice ${invoiceNumber} created!`, 'success');
-                router.push('/sales');
+                navigate('/sales');
             } else {
                 showToast('Failed to create invoice', 'error');
             }
@@ -220,7 +220,7 @@ export default function NewSalePage() {
     return (
         <AppLayout title="New Sale" showHeader={false}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
-                <button onClick={() => router.back()} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}>
+                <button onClick={() => navigate(-1)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}>
                     <ArrowLeft size={24} />
                 </button>
                 <h1 style={{ fontSize: '20px', fontWeight: '700' }}>New Sale / Invoice</h1>

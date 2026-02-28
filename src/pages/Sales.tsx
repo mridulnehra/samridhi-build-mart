@@ -1,4 +1,4 @@
-'use client';
+
 
 import { useState, useEffect } from 'react';
 import { AppLayout } from '@/components/layout';
@@ -6,7 +6,7 @@ import { useToast } from '@/components/ui';
 import { Receipt, Search, Plus, Filter, Download } from 'lucide-react';
 import { Invoice } from '@/types';
 import { dataService } from '@/services/dataService';
-import Link from 'next/link';
+import { Link } from 'react-router-dom';
 
 function formatCurrency(amount: number): string {
     return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0 }).format(amount);
@@ -105,7 +105,7 @@ export default function SalesPage() {
             </div>
 
             {/* New Sale Button */}
-            <Link href="/sales/new" style={{ textDecoration: 'none' }}>
+            <Link to="/sales/new" style={{ textDecoration: 'none' }}>
                 <button className="btn btn-primary" style={{ width: '100%', marginBottom: '16px' }}>
                     <Plus size={18} /> New Sale / Invoice
                 </button>

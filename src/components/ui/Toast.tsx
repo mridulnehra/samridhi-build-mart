@@ -1,6 +1,4 @@
-'use client';
-
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
 import { X, CheckCircle, AlertCircle, Info } from 'lucide-react';
 
 type ToastType = 'success' | 'error' | 'info';
@@ -25,8 +23,26 @@ export function useToast() {
     return context;
 }
 
+// Inject the slideIn animation into the document head once
+const STYLE_ID = 'toast-animations';
+function ensureAnimationStyle() {
+    if (typeof document !== 'undefined' && !document.getElementById(STYLE_ID)) {
+        const style = document.createElement('style');
+        style.id = STYLE_ID;
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+}
+
 export function ToastProvider({ children }: { children: ReactNode }) {
     const [toasts, setToasts] = useState<Toast[]>([]);
+
+    useEffect(() => { ensureAnimationStyle(); }, []);
 
     const showToast = useCallback((message: string, type: ToastType = 'info') => {
         const id = Math.random().toString(36).substring(2, 9);
@@ -73,7 +89,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                             pointerEvents: 'auto',
                             animation: 'slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
                             borderLeft: `4px solid ${toast.type === 'success' ? '#4CAF50' :
-                                    toast.type === 'error' ? '#F44336' : '#2196F3'
+                                toast.type === 'error' ? '#F44336' : '#2196F3'
                                 }`,
                         }}
                     >
@@ -101,18 +117,6 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                     </div>
                 ))}
             </div>
-            <style jsx global>{`
-        @keyframes slideIn {
-          from {
-            transform: translateX(100%);
-            opacity: 0;
-          }
-          to {
-            transform: translateX(0);
-            opacity: 1;
-          }
-        }
-      `}</style>
         </ToastContext.Provider>
     );
 }

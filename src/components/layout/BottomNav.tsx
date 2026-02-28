@@ -1,7 +1,4 @@
-'use client';
-
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { Link, useLocation } from 'react-router-dom';
 import { Home, Package, Plus, Receipt, BarChart3 } from 'lucide-react';
 
 const navItems = [
@@ -13,7 +10,8 @@ const navItems = [
 ];
 
 export default function BottomNav() {
-    const pathname = usePathname();
+    const location = useLocation();
+    const pathname = location.pathname;
 
     return (
         <nav className="bottom-nav">
@@ -26,7 +24,7 @@ export default function BottomNav() {
                     return (
                         <Link
                             key={item.href}
-                            href={item.href}
+                            to={item.href}
                             style={{
                                 width: '48px',
                                 height: '48px',
@@ -48,7 +46,7 @@ export default function BottomNav() {
                 return (
                     <Link
                         key={item.href}
-                        href={item.href}
+                        to={item.href}
                         className={`bottom-nav-item ${isActive ? 'active' : ''}`}
                     >
                         <Icon size={22} />

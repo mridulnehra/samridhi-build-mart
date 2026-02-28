@@ -1,4 +1,4 @@
-'use client';
+
 
 import { AppLayout } from '@/components/layout';
 import { useToast } from '@/components/ui';
