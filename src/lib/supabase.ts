@@ -1,14 +1,16 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
+// Use proxy URL in production, or direct Supabase URL in development
+const isDev = import.meta.env.DEV;
+const origin = typeof window !== 'undefined' ? window.location.origin : '';
+const supabaseUrl = isDev ? (import.meta.env.VITE_SUPABASE_URL || '') : `${origin}/api/supabase`;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
 // Warn at startup if env vars are missing
 if (!supabaseUrl || !supabaseAnonKey) {
     console.warn(
-        '⚠️ Supabase environment variables are missing!\n' +
-        'Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your environment.\n' +
-        'For Vercel: Go to Project Settings → Environment Variables.'
+        '⚠️ Supabase configuration is missing!\n' +
+        'Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your environment.'
     );
 }
 
