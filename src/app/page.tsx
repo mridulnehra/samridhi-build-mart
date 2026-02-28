@@ -16,6 +16,7 @@ import {
   Clock
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { withTimeout } from '@/lib/supabase';
 
 function formatCurrency(amount: number): string {
   return new Intl.NumberFormat('en-IN', {
@@ -43,6 +44,7 @@ export default function DashboardPage() {
     todayExpenses: 0, inHandAmount: 0, lowStockAlerts: [], pendingDeliveries: 0, recentActivity: [],
   });
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     loadDashboard();
@@ -62,7 +64,7 @@ export default function DashboardPage() {
         { data: materials },
         { data: pendingInvoices },
         { data: recentCashbook },
-      ] = await Promise.all([
+      ] = await withTimeout(Promise.all([
         supabase.from('cashbook_entries').select('amount').eq('type', 'receipt').eq('entry_date', today),
         supabase.from('cashbook_entries').select('amount').eq('type', 'payment').eq('entry_date', today),
         supabase.from('blocks').select('available_qty'),
@@ -71,7 +73,7 @@ export default function DashboardPage() {
         supabase.from('raw_materials').select('name, current_stock, min_stock_level, unit'),
         supabase.from('invoices').select('id').eq('delivery_status', 'pending'),
         supabase.from('cashbook_entries').select('*').order('created_at', { ascending: false }).limit(5),
-      ]);
+      ]), 10000);
 
       const todayRev = (todayReceipts || []).reduce((sum, r) => sum + Number(r.amount), 0);
       const todayExp = (todayPayments || []).reduce((sum, p) => sum + Number(p.amount), 0);
@@ -102,6 +104,7 @@ export default function DashboardPage() {
       });
     } catch (err) {
       console.error('Dashboard load error:', err);
+      setError(true);
     } finally {
       setLoading(false);
     }
@@ -112,6 +115,19 @@ export default function DashboardPage() {
       <AppLayout title="Dashboard">
         <div className="flex-center" style={{ minHeight: '60vh' }}>
           <div className="spinner" />
+        </div>
+      </AppLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <AppLayout title="Dashboard">
+        <div className="flex-center" style={{ minHeight: '60vh', flexDirection: 'column', gap: '16px' }}>
+          <div style={{ fontSize: '48px' }}>⚠️</div>
+          <p style={{ color: 'var(--color-text-secondary)', fontSize: '16px', textAlign: 'center' }}>Unable to load dashboard data</p>
+          <p style={{ color: 'var(--color-text-muted)', fontSize: '13px', textAlign: 'center' }}>Please check your internet connection</p>
+          <button className="btn btn-primary" onClick={() => { setError(false); setLoading(true); loadDashboard(); }}>Retry</button>
         </div>
       </AppLayout>
     );

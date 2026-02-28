@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { AppLayout } from '@/components/layout';
 import { Modal, useToast, ConfirmDialog } from '@/components/ui';
-import { supabase } from '@/lib/supabase';
+import { supabase, withTimeout } from '@/lib/supabase';
 import {
     Plus,
     Search,
@@ -58,6 +58,7 @@ export default function MembersPage() {
     const { showToast } = useToast();
     const [members, setMembers] = useState<Member[]>([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [filter, setFilter] = useState<'all' | 'active' | 'inactive'>('all');
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -79,17 +80,28 @@ export default function MembersPage() {
 
     const fetchMembers = useCallback(async () => {
         setLoading(true);
-        const { data, error } = await supabase
-            .from('members')
-            .select('*')
-            .order('created_at', { ascending: false });
+        setError(false);
+        try {
+            const { data, error: fetchError } = await withTimeout(
+                supabase
+                    .from('members')
+                    .select('*')
+                    .order('created_at', { ascending: false }),
+                10000
+            );
 
-        if (error) {
-            console.error('Error fetching members:', error);
-        } else {
-            setMembers(data || []);
+            if (fetchError) {
+                console.error('Error fetching members:', fetchError);
+                setError(true);
+            } else {
+                setMembers(data || []);
+            }
+        } catch (err) {
+            console.error('Members load error:', err);
+            setError(true);
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     }, []);
 
     useEffect(() => {
@@ -349,6 +361,13 @@ export default function MembersPage() {
                     <div className="empty-state">
                         <Loader2 size={48} style={{ animation: 'spin 1s linear infinite' }} />
                         <p>Loading members...</p>
+                    </div>
+                ) : error ? (
+                    <div className="flex-center" style={{ minHeight: '40vh', flexDirection: 'column', gap: '16px' }}>
+                        <div style={{ fontSize: '48px' }}>⚠️</div>
+                        <p style={{ color: 'var(--color-text-secondary)', fontSize: '16px' }}>Unable to load members</p>
+                        <p style={{ color: 'var(--color-text-muted)', fontSize: '13px' }}>Please check your internet connection</p>
+                        <button className="btn btn-primary" onClick={() => { setError(false); setLoading(true); fetchMembers(); }}>Retry</button>
                     </div>
                 ) : filteredMembers.length === 0 ? (
                     <div className="empty-state">

@@ -1,10 +1,12 @@
-import { supabase } from '@/lib/supabase';
+import { supabase, withTimeout } from '@/lib/supabase';
 import { Block, Customer, Invoice, InvoiceItem, RawMaterial, CashbookEntry, ProductionBatch, Vehicle, Settings } from '@/types';
+
+const TIMEOUT_MS = 10000; // 10 second timeout for all requests
 
 class DataService {
     // ─── Blocks ───
     async getBlocks(): Promise<Block[]> {
-        const { data, error } = await supabase.from('blocks').select('*').order('created_at', { ascending: false });
+        const { data, error } = await withTimeout(supabase.from('blocks').select('*').order('created_at', { ascending: false }), TIMEOUT_MS);
         if (error) { console.error('getBlocks error:', error); return []; }
         return data as Block[];
     }
@@ -30,7 +32,7 @@ class DataService {
 
     // ─── Customers ───
     async getCustomers(): Promise<Customer[]> {
-        const { data, error } = await supabase.from('customers').select('*').order('created_at', { ascending: false });
+        const { data, error } = await withTimeout(supabase.from('customers').select('*').order('created_at', { ascending: false }), TIMEOUT_MS);
         if (error) { console.error('getCustomers error:', error); return []; }
         return data as Customer[];
     }
@@ -56,10 +58,10 @@ class DataService {
 
     // ─── Invoices ───
     async getInvoices(): Promise<Invoice[]> {
-        const { data, error } = await supabase
+        const { data, error } = await withTimeout(supabase
             .from('invoices')
             .select('*, customers(*), invoice_items(*)')
-            .order('created_at', { ascending: false });
+            .order('created_at', { ascending: false }), TIMEOUT_MS);
         if (error) { console.error('getInvoices error:', error); return []; }
         return (data || []).map((inv: Record<string, unknown>) => ({
             ...inv,
@@ -111,7 +113,7 @@ class DataService {
 
     // ─── Raw Materials ───
     async getRawMaterials(): Promise<RawMaterial[]> {
-        const { data, error } = await supabase.from('raw_materials').select('*').order('created_at', { ascending: false });
+        const { data, error } = await withTimeout(supabase.from('raw_materials').select('*').order('created_at', { ascending: false }), TIMEOUT_MS);
         if (error) { console.error('getRawMaterials error:', error); return []; }
         return data as RawMaterial[];
     }
@@ -137,7 +139,7 @@ class DataService {
 
     // ─── Cashbook ───
     async getCashbookEntries(): Promise<CashbookEntry[]> {
-        const { data, error } = await supabase.from('cashbook_entries').select('*').order('created_at', { ascending: false });
+        const { data, error } = await withTimeout(supabase.from('cashbook_entries').select('*').order('created_at', { ascending: false }), TIMEOUT_MS);
         if (error) { console.error('getCashbookEntries error:', error); return []; }
         return data as CashbookEntry[];
     }
@@ -163,7 +165,7 @@ class DataService {
 
     // ─── Production Batches ───
     async getProductionBatches(): Promise<ProductionBatch[]> {
-        const { data, error } = await supabase.from('production_batches').select('*').order('started_at', { ascending: false });
+        const { data, error } = await withTimeout(supabase.from('production_batches').select('*').order('started_at', { ascending: false }), TIMEOUT_MS);
         if (error) { console.error('getProductionBatches error:', error); return []; }
         return data as ProductionBatch[];
     }
@@ -183,7 +185,7 @@ class DataService {
 
     // ─── Vehicles ───
     async getVehicles(): Promise<Vehicle[]> {
-        const { data, error } = await supabase.from('vehicles').select('*').order('created_at', { ascending: false });
+        const { data, error } = await withTimeout(supabase.from('vehicles').select('*').order('created_at', { ascending: false }), TIMEOUT_MS);
         if (error) { console.error('getVehicles error:', error); return []; }
         return data as Vehicle[];
     }

@@ -24,6 +24,7 @@ export default function NewSalePage() {
     const { showToast } = useToast();
     const router = useRouter();
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(false);
     const [saving, setSaving] = useState(false);
     const [blocks, setBlocks] = useState<Block[]>([]);
     const [customers, setCustomers] = useState<Customer[]>([]);
@@ -46,13 +47,20 @@ export default function NewSalePage() {
 
     const loadData = async () => {
         setLoading(true);
-        const [blocksData, customersData] = await Promise.all([
-            dataService.getBlocks(),
-            dataService.getCustomers(),
-        ]);
-        setBlocks(blocksData);
-        setCustomers(customersData);
-        setLoading(false);
+        setError(false);
+        try {
+            const [blocksData, customersData] = await Promise.all([
+                dataService.getBlocks(),
+                dataService.getCustomers(),
+            ]);
+            setBlocks(blocksData);
+            setCustomers(customersData);
+        } catch (err) {
+            console.error('Load sale data error:', err);
+            setError(true);
+        } finally {
+            setLoading(false);
+        }
     };
 
     const addItem = () => {
@@ -192,6 +200,19 @@ export default function NewSalePage() {
         return (
             <AppLayout title="New Sale">
                 <div className="flex-center" style={{ minHeight: '60vh' }}><div className="spinner" /></div>
+            </AppLayout>
+        );
+    }
+
+    if (error) {
+        return (
+            <AppLayout title="New Sale">
+                <div className="flex-center" style={{ minHeight: '60vh', flexDirection: 'column', gap: '16px' }}>
+                    <div style={{ fontSize: '48px' }}>⚠️</div>
+                    <p style={{ color: 'var(--color-text-secondary)', fontSize: '16px' }}>Unable to load data</p>
+                    <p style={{ color: 'var(--color-text-muted)', fontSize: '13px' }}>Please check your internet connection</p>
+                    <button className="btn btn-primary" onClick={() => { setError(false); setLoading(true); loadData(); }}>Retry</button>
+                </div>
             </AppLayout>
         );
     }

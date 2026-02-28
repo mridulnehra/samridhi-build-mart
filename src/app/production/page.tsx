@@ -12,6 +12,7 @@ export default function ProductionPage() {
     const [batches, setBatches] = useState<ProductionBatch[]>([]);
     const [blocks, setBlocks] = useState<Block[]>([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [updateModal, setUpdateModal] = useState<ProductionBatch | null>(null);
     const [updateQty, setUpdateQty] = useState(0);
@@ -27,13 +28,20 @@ export default function ProductionPage() {
 
     const loadData = async () => {
         setLoading(true);
-        const [batchesData, blocksData] = await Promise.all([
-            dataService.getProductionBatches(),
-            dataService.getBlocks(),
-        ]);
-        setBatches(batchesData);
-        setBlocks(blocksData);
-        setLoading(false);
+        setError(false);
+        try {
+            const [batchesData, blocksData] = await Promise.all([
+                dataService.getProductionBatches(),
+                dataService.getBlocks(),
+            ]);
+            setBatches(batchesData);
+            setBlocks(blocksData);
+        } catch (err) {
+            console.error('Load production error:', err);
+            setError(true);
+        } finally {
+            setLoading(false);
+        }
     };
 
     const activeBatches = batches.filter(b => b.status === 'in_progress');
@@ -121,6 +129,10 @@ export default function ProductionPage() {
 
     if (loading) {
         return (<AppLayout title="Production"><div className="flex-center" style={{ minHeight: '60vh' }}><div className="spinner" /></div></AppLayout>);
+    }
+
+    if (error) {
+        return (<AppLayout title="Production"><div className="flex-center" style={{ minHeight: '60vh', flexDirection: 'column', gap: '16px' }}><div style={{ fontSize: '48px' }}>⚠️</div><p style={{ color: 'var(--color-text-secondary)', fontSize: '16px' }}>Unable to load production data</p><p style={{ color: 'var(--color-text-muted)', fontSize: '13px' }}>Please check your internet connection</p><button className="btn btn-primary" onClick={() => { setError(false); setLoading(true); loadData(); }}>Retry</button></div></AppLayout>);
     }
 
     return (

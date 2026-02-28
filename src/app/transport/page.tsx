@@ -11,6 +11,7 @@ export default function TransportPage() {
     const { showToast } = useToast();
     const [vehicles, setVehicles] = useState<Vehicle[]>([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(false);
     const [isVehicleModalOpen, setIsVehicleModalOpen] = useState(false);
     const [deleteConfirmation, setDeleteConfirmation] = useState<string | null>(null);
 
@@ -20,9 +21,16 @@ export default function TransportPage() {
 
     const loadData = async () => {
         setLoading(true);
-        const vehiclesData = await dataService.getVehicles();
-        setVehicles(vehiclesData);
-        setLoading(false);
+        setError(false);
+        try {
+            const vehiclesData = await dataService.getVehicles();
+            setVehicles(vehiclesData);
+        } catch (err) {
+            console.error('Load transport error:', err);
+            setError(true);
+        } finally {
+            setLoading(false);
+        }
     };
 
     const statusStyles = {
@@ -76,6 +84,10 @@ export default function TransportPage() {
 
     if (loading) {
         return (<AppLayout title="Transport"><div className="flex-center" style={{ minHeight: '60vh' }}><div className="spinner" /></div></AppLayout>);
+    }
+
+    if (error) {
+        return (<AppLayout title="Transport"><div className="flex-center" style={{ minHeight: '60vh', flexDirection: 'column', gap: '16px' }}><div style={{ fontSize: '48px' }}>⚠️</div><p style={{ color: 'var(--color-text-secondary)', fontSize: '16px' }}>Unable to load transport data</p><p style={{ color: 'var(--color-text-muted)', fontSize: '13px' }}>Please check your internet connection</p><button className="btn btn-primary" onClick={() => { setError(false); setLoading(true); loadData(); }}>Retry</button></div></AppLayout>);
     }
 
     return (

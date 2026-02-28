@@ -27,6 +27,7 @@ export default function BlocksPage() {
     const { showToast } = useToast();
     const [blocks, setBlocks] = useState<Block[]>([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -51,9 +52,16 @@ export default function BlocksPage() {
 
     const loadBlocks = async () => {
         setLoading(true);
-        const data = await dataService.getBlocks();
-        setBlocks(data);
-        setLoading(false);
+        setError(false);
+        try {
+            const data = await dataService.getBlocks();
+            setBlocks(data);
+        } catch (err) {
+            console.error('Load blocks error:', err);
+            setError(true);
+        } finally {
+            setLoading(false);
+        }
     };
 
     const filteredBlocks = blocks.filter(b => {
@@ -148,6 +156,19 @@ export default function BlocksPage() {
         return (
             <AppLayout title="Block Inventory">
                 <div className="flex-center" style={{ minHeight: '60vh' }}><div className="spinner" /></div>
+            </AppLayout>
+        );
+    }
+
+    if (error) {
+        return (
+            <AppLayout title="Block Inventory">
+                <div className="flex-center" style={{ minHeight: '60vh', flexDirection: 'column', gap: '16px' }}>
+                    <div style={{ fontSize: '48px' }}>⚠️</div>
+                    <p style={{ color: 'var(--color-text-secondary)', fontSize: '16px' }}>Unable to load blocks</p>
+                    <p style={{ color: 'var(--color-text-muted)', fontSize: '13px' }}>Please check your internet connection</p>
+                    <button className="btn btn-primary" onClick={() => { setError(false); setLoading(true); loadBlocks(); }}>Retry</button>
+                </div>
             </AppLayout>
         );
     }

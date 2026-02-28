@@ -27,6 +27,7 @@ export default function MaterialsPage() {
     const { showToast } = useToast();
     const [materials, setMaterials] = useState<RawMaterial[]>([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -50,9 +51,16 @@ export default function MaterialsPage() {
 
     const loadMaterials = async () => {
         setLoading(true);
-        const data = await dataService.getRawMaterials();
-        setMaterials(data);
-        setLoading(false);
+        setError(false);
+        try {
+            const data = await dataService.getRawMaterials();
+            setMaterials(data);
+        } catch (err) {
+            console.error('Load materials error:', err);
+            setError(true);
+        } finally {
+            setLoading(false);
+        }
     };
 
     const filteredMaterials = materials.filter(m => {
@@ -155,6 +163,19 @@ export default function MaterialsPage() {
         return (
             <AppLayout title="Raw Materials">
                 <div className="flex-center" style={{ minHeight: '60vh' }}><div className="spinner" /></div>
+            </AppLayout>
+        );
+    }
+
+    if (error) {
+        return (
+            <AppLayout title="Raw Materials">
+                <div className="flex-center" style={{ minHeight: '60vh', flexDirection: 'column', gap: '16px' }}>
+                    <div style={{ fontSize: '48px' }}>⚠️</div>
+                    <p style={{ color: 'var(--color-text-secondary)', fontSize: '16px' }}>Unable to load materials</p>
+                    <p style={{ color: 'var(--color-text-muted)', fontSize: '13px' }}>Please check your internet connection</p>
+                    <button className="btn btn-primary" onClick={() => { setError(false); setLoading(true); loadMaterials(); }}>Retry</button>
+                </div>
             </AppLayout>
         );
     }

@@ -15,6 +15,7 @@ export default function CashbookPage() {
     const { showToast } = useToast();
     const [entries, setEntries] = useState<CashbookEntry[]>([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(false);
     const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [entryType, setEntryType] = useState<'receipt' | 'payment'>('receipt');
@@ -27,9 +28,16 @@ export default function CashbookPage() {
 
     const loadEntries = async () => {
         setLoading(true);
-        const data = await dataService.getCashbookEntries();
-        setEntries(data);
-        setLoading(false);
+        setError(false);
+        try {
+            const data = await dataService.getCashbookEntries();
+            setEntries(data);
+        } catch (err) {
+            console.error('Load cashbook error:', err);
+            setError(true);
+        } finally {
+            setLoading(false);
+        }
     };
 
     const dayEntries = selectedDate === 'all'
@@ -75,6 +83,10 @@ export default function CashbookPage() {
 
     if (loading) {
         return (<AppLayout title="Daily Cashbook"><div className="flex-center" style={{ minHeight: '60vh' }}><div className="spinner" /></div></AppLayout>);
+    }
+
+    if (error) {
+        return (<AppLayout title="Daily Cashbook"><div className="flex-center" style={{ minHeight: '60vh', flexDirection: 'column', gap: '16px' }}><div style={{ fontSize: '48px' }}>⚠️</div><p style={{ color: 'var(--color-text-secondary)', fontSize: '16px' }}>Unable to load cashbook</p><p style={{ color: 'var(--color-text-muted)', fontSize: '13px' }}>Please check your internet connection</p><button className="btn btn-primary" onClick={() => { setError(false); setLoading(true); loadEntries(); }}>Retry</button></div></AppLayout>);
     }
 
     return (
